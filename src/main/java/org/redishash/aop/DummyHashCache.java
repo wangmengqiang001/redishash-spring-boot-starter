@@ -12,21 +12,22 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class DummyHashCache implements IHashCache {
 	
-	private Map<String,Object> mapCache = Maps.newConcurrentMap();
+	private Map<String,Map<String, Object>> mapCache = Maps.newConcurrentMap();
 	
 	public int cacheSize() {
 		return mapCache.size();
 	}
 	public int cacheSize(String cacheName) {
 		if(mapCache.containsKey(cacheName)) {
-			return ((Map<String,Object>)mapCache.get(cacheName)).size();
+			Map<String, Object> map = mapCache.get(cacheName);
+			return map.size();
 		}
 		return -1; //no cache
 	}
 
 	@Override
 	public void putObject(String cacheName, String hashKey, Object obj) {
-		// TODO Auto-generated method stub
+		
 		log.info("在进行修改后，更新cache中key={},hashKey={}中的值",cacheName,hashKey);
 		if(!mapCache.containsKey(cacheName)) {
 			Map<String,Object> hkeys = Maps.newConcurrentMap();
@@ -34,7 +35,7 @@ public class DummyHashCache implements IHashCache {
 			
 			mapCache.put(cacheName, hkeys);
 		}else {
-			Map<String,Object> hkeys = (Map<String,Object>)mapCache.get(cacheName);
+			Map<String,Object> hkeys = mapCache.get(cacheName);
 			hkeys.put(hashKey, obj);
 		}
 		
@@ -47,7 +48,7 @@ public class DummyHashCache implements IHashCache {
 		if(!mapCache.containsKey(cacheName)){
 			return null;
 		}else {
-			Map<String, Object> hkeys = (Map<String, Object>) mapCache.get(cacheName);
+			Map<String, Object> hkeys =  mapCache.get(cacheName);
 			return hkeys.get(hashKey);
 		}
 		
@@ -57,7 +58,7 @@ public class DummyHashCache implements IHashCache {
 	public void evictObject(String cacheName, String hashKey) {
 		log.info("删除 object by key: {}, hashKey: {}",cacheName,hashKey);
 		mapCache.computeIfPresent(cacheName, (k,v) -> {
-			Map<String,Object> hKeys = (Map<String, Object>) v;
+			Map<String,Object> hKeys =  v;
 			hKeys.remove(hashKey);
 			return hKeys.size() > 0?v:null;});
 		

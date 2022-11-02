@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -58,7 +57,7 @@ public class TestRedisHashAnnotation {
 			assertTrue(methodGet.toGenericString().contains("$$EnhancerBySpringCGLIB$$"));
 			assertTrue( AopUtils.isCglibProxy(inner));
 			
-			Class<?> classTarget =AopUtils.getTargetClass((InnerRedis)inner);
+			Class<?> classTarget =AopUtils.getTargetClass(inner);
 			Method methodTarget = classTarget.getMethod("findByKey", String.class);
 			
 			//
@@ -104,7 +103,7 @@ public class TestRedisHashAnnotation {
 			assertTrue(methodPut.toGenericString().contains("$$EnhancerBySpringCGLIB$$"));
 			assertTrue( AopUtils.isCglibProxy(inner));
 
-			Class<?> classTarget =AopUtils.getTargetClass((InnerRedis)inner);
+			Class<?> classTarget =AopUtils.getTargetClass(inner);
 			Method methodTarget = classTarget.getMethod("updateBykey", String.class, String.class);
 
 			//
@@ -126,7 +125,7 @@ public class TestRedisHashAnnotation {
 			assertTrue(methodDel.toGenericString().contains("$$EnhancerBySpringCGLIB$$"));
 			assertTrue( AopUtils.isCglibProxy(inner));
 
-			Class<?> classTarget =AopUtils.getTargetClass((InnerRedis)inner);
+			Class<?> classTarget =AopUtils.getTargetClass(inner);
 			Method methodTarget = classTarget.getMethod("delByKey", String.class);
 
 			//

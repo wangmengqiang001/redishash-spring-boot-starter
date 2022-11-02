@@ -18,7 +18,6 @@ import org.redishash.annotation.RedisHDel;
 import org.redishash.annotation.RedisHGet;
 import org.redishash.annotation.RedisHMPut;
 import org.redishash.annotation.RedisHPut;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.expression.ExpressionParser;

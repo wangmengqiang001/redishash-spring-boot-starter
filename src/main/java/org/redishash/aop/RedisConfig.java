@@ -54,7 +54,7 @@ public class RedisConfig {
 	}
 
     @Bean
-    @ConditionalOnBean(EnableRedisHashCache.class)
+    //@ConditionalOnBean(EnableRedisHashCache.class) // TODO to check why it cannot found the App class 
    // @ConditionPost
     @ConditionalOnMissingBean(RedisHashAspect.class)
     public RedisHashAspect redisHashAspect() {

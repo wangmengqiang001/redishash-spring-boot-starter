@@ -3,8 +3,6 @@ package org.redishash.aop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +12,7 @@ public class RedisHashCache implements IHashCache {
 	
 	
 	@Autowired
-	RedisTemplate redisTemplate;
+	RedisTemplate<String, ?> redisTemplate;
 
 	@SuppressWarnings("unchecked")
 	@Override
