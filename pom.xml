@@ -4,12 +4,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
+	<!-- <parent> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-parent</artifactId> 
+		<version>2.7.4</version> <relativePath /> lookup parent from repository </parent> -->
 
 	<groupId>org.redis_starter</groupId>
 	<artifactId>redishash-spring-boot-starter</artifactId>
@@ -22,101 +18,145 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<spring-boot.version>2.7.4</spring-boot.version>
+		<lombok.version>1.18.24</lombok.version>
 		<spring-cloud.version>2021.0.4</spring-cloud.version>
+		<aspectj.version>1.9.7</aspectj.version>
+		<junit-jupiter.version>5.8.2</junit-jupiter.version>
+		<junit-platform.version>1.8.2</junit-platform.version>
+		<spring-integration.version>5.5.15</spring-integration.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
 	</properties>
+
+
 
 	<dependencies>
 
-        <dependency>
-      		<groupId>org.springframework.boot</groupId>
-      		<artifactId>spring-boot-starter-data-redis</artifactId>
-    	</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>			
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+			<version>${spring-boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>			
+			<artifactId>spring-boot-autoconfigure</artifactId>
+			<version>${spring-boot.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<version>${spring-boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure-processor</artifactId>
-			
+			<version>${spring-boot.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
-        	<groupId>org.aspectj</groupId>
-        	<artifactId>aspectjrt</artifactId>
-        
-        </dependency>
-        <dependency>
-          	<groupId>org.aspectj</groupId>
-        	<artifactId>aspectjweaver</artifactId>      
-        </dependency>
-        
-        <dependency>
-      		<groupId>org.springframework.boot</groupId>
-      		<artifactId>spring-boot-starter-data-redis</artifactId>
-    	</dependency>
-    	
-    	<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-		<dependency>
-		    <groupId>com.google.guava</groupId>
-		    <artifactId>guava</artifactId>
-		    <version>31.1-jre</version>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+
 		</dependency>
-		
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+
+			<version>${spring-boot.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-client -->
 		<dependency>
-		    <groupId>com.alibaba.nacos</groupId>
-		    <artifactId>nacos-client</artifactId>
-		    <version>1.1.1</version>
+			<groupId>com.alibaba.nacos</groupId>
+			<artifactId>nacos-client</artifactId>
+			<version>1.1.1</version>
 		</dependency>
-		
-    	
-		
-			<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-           <!--  <version>5.8.2</version> -->
-            <scope>test</scope>
-        </dependency>
-		
+
+
+
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<!-- <version>1.8.2</version> -->
+			<version>${junit-platform.version}</version>
+
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<version>${spring-boot.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-<!-- 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream</artifactId>
-			<scope>test</scope>
-			<classifier>test-binder</classifier>
-			<type>test-jar</type>
-		</dependency> -->
+
+		<!-- <dependency> <groupId>org.springframework.cloud</groupId> <artifactId>spring-cloud-stream</artifactId> 
+			<scope>test</scope> <classifier>test-binder</classifier> <type>test-jar</type> 
+			</dependency> -->
 		<dependency>
 			<groupId>org.springframework.integration</groupId>
 			<artifactId>spring-integration-test</artifactId>
+			<version>${spring-integration.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.4.2</version>
+			<scope>test</scope>
+
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.13.4</version>
+			<scope>test</scope>
+
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jdk8</artifactId>
+			<version>2.13.4</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
-		<dependencyManagement>
+	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -128,19 +168,28 @@
 		</dependencies>
 	</dependencyManagement>
 	<build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-autoconfigure-processor</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+			</plugin>
+	<!-- 		<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>${maven-failsafe-plugin.version}</version>
+			</plugin> -->
+
+
+		</plugins>
+	</build>
 </project>
