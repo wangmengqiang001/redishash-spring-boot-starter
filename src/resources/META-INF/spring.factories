@@ -1,0 +1,10 @@
+# Initializers
+# org.springframework.context.ApplicationContextInitializer=\
+
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.redishash.aop.RedisConfig
+
+org.redishash.aop.IHashCache=\
+org.redishash.aop.DummyHashCache,\
+org.redishash.aop.RedisHashCache
