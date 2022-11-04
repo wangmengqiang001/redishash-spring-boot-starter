@@ -1,10 +1,12 @@
 package org.redishash.aop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.redishash.annotation.RedisHDel;
 import org.redishash.annotation.RedisHGet;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
@@ -53,9 +56,17 @@ class RedisHashCacheTest {
 		}
 		
 		@RedisHPut(hashKey = "#innerData.deviceId", cache = "energy:iot:object_model:info_example")
-		public void updateBykey(InnderData innerData) {
+		public boolean updateBykey(InnderData innerData) {
 			
 			innerData.setMetrics(innerData.getDeviceId()+"_" + System.currentTimeMillis());
+			return true;
+			
+		}
+		@RedisHPut(hashKey = "#innerData.deviceId", cache = "energy:iot:object_model:info_example")
+		public boolean updateBykeyFalse(InnderData innerData) {
+			
+			innerData.setMetrics(innerData.getDeviceId()+"_" + System.currentTimeMillis());
+			return false;
 			
 		}
 		
@@ -95,6 +106,26 @@ class RedisHashCacheTest {
 				.props(pros).build();
 		
 		inner.updateBykey(data);
+		
+		//read it from cache to compare
+        InnderData dat =  inner.findByKey("abc");
+		
+		assertEquals(data.getMetrics(),dat.getMetrics());
+	}
+	@Test
+	void testPutObjectFalse() {
+		
+		List<String> pros = Lists.newArrayList("directon","speed","shape");
+		InnderData data = InnderData.builder().deviceId("abc")
+				.metrics("abcd"+"_" + System.currentTimeMillis()).value(200)
+				.props(pros).build();
+		
+		inner.updateBykeyFalse(data);
+		
+		//read it from cache to compare
+		InnderData dat =  inner.findByKey("abc");
+		
+		assertFalse(data.getMetrics().equals(dat.getMetrics()),"It should not be equal");
 	}
 
 	@Test

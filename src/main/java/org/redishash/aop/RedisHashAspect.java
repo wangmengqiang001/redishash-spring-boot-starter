@@ -123,8 +123,11 @@ public class RedisHashAspect {
 		
 		
 	}
-	@After("cutpointHPut()")
-	public void update(JoinPoint point) {
+	@AfterReturning(value="cutpointHPut()", returning = "result")
+	public void update(JoinPoint point,boolean result) {
+		log.info("cutpointHPut:{}, result is:{}",point,result);
+		if(!result) //not ok do nothing
+			return;
 		Method method = ((MethodSignature) point.getSignature()).getMethod();
 		RedisHPut cache = method.getAnnotation(RedisHPut.class);
 		String cacheName = cache.cache();
