@@ -141,9 +141,11 @@ public class RedisHashAspect {
 		
 	}
 
-	@After("cutpointHDel()")
-	public void evict(JoinPoint point) {
-		log.info("cutpointHDel :{}",point);
+	@AfterReturning(value="cutpointHDel()", returning = "result")
+	public void evict(JoinPoint point,boolean result) {
+		log.info("cutpointHDel :{},result:{}",point,result);
+		if(!result) //not ok do nothing
+			return;
 		
 		Method method = ((MethodSignature) point.getSignature()).getMethod();
 		RedisHDel cache = method.getAnnotation(RedisHDel.class);

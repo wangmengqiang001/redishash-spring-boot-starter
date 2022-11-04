@@ -62,6 +62,12 @@ class RedisHashCacheTest {
 			return true;
 			
 		}
+
+		
+		@RedisHDel(hashKey = "#innerData.deviceId", cache = "energy:iot:object_model:info_example")
+		public boolean delByKey(InnderData innerData) {
+			return true;
+		}
 		@RedisHPut(hashKey = "#innerData.deviceId", cache = "energy:iot:object_model:info_example")
 		public boolean updateBykeyFalse(InnderData innerData) {
 			
@@ -71,8 +77,8 @@ class RedisHashCacheTest {
 		}
 		
 		@RedisHDel(hashKey = "#innerData.deviceId", cache = "energy:iot:object_model:info_example")
-		public void delByKey(InnderData innerData) {
-			
+		public boolean delByKeyFalse(InnderData innerData) {
+			return false;
 		}
 		@RedisHMPut(hashKey = "#resultVal.deviceId", cache = "energy:iot:object_model:info_example")
 		public List<InnderData> queryList(){
@@ -148,9 +154,41 @@ class RedisHashCacheTest {
 
 	@Test
 	void testEvictObject() {
-		//fail("Not yet implemented");
+		//update data first
+	
+		
+		//read it from cache or initialize cache
+        InnderData dat =  inner.findByKey("abc");
+        
+		
 		InnderData data = InnderData.builder().deviceId("abc").build();
 		inner.delByKey(data);
+		
+		//find again
+		 InnderData datNew =  inner.findByKey("abc");
+		 
+		 //verify they are different
+		 assertFalse(dat.getMetrics().equals(datNew.getMetrics()),"It should not be equal");
+		 
+	}
+	@Test
+	void testEvictObjectFalse() {
+		//update data first
+	
+		
+		//read it from cache or initialize cache
+        InnderData dat =  inner.findByKey("abc");
+        
+		
+		InnderData data = InnderData.builder().deviceId("abc").build();
+		inner.delByKeyFalse(data);
+		
+		//find again
+		 InnderData datNew =  inner.findByKey("abc");
+		 
+		 //verify they are same because deletion not happen
+		 assertEquals(dat.getMetrics(),datNew.getMetrics());
+		 
 	}
 	@Test
 	void testQueryList() {
