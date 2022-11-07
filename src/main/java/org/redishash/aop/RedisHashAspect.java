@@ -73,7 +73,7 @@ public class RedisHashAspect {
             	Class<?> rtnType = method.getReturnType();
             	
                 // 查询操作
-                String cacheName = cache.cache();
+                String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
                 String hashKey = parseKey(cache.hashKey(), method, point.getArgs());
                 Object obj = cacher.locateObject(cacheName, hashKey);
                 if (obj == null) {
@@ -123,6 +123,13 @@ public class RedisHashAspect {
 		
 		
 	}
+	private String parseCacheName(String cacheName,Method method, Object[] args) {
+		if(cacheName.contains("#")){
+			return this.parseKey(cacheName, method, args);
+		}else {
+			return cacheName;
+		}
+	}
 	@AfterReturning(value="cutpointHPut()", returning = "result")
 	public void update(JoinPoint point,boolean result) {
 		log.info("cutpointHPut:{}, result is:{}",point,result);
@@ -130,7 +137,7 @@ public class RedisHashAspect {
 			return;
 		Method method = ((MethodSignature) point.getSignature()).getMethod();
 		RedisHPut cache = method.getAnnotation(RedisHPut.class);
-		String cacheName = cache.cache();
+		String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
 		String hashKey = parseKey(cache.hashKey(), method, point.getArgs());
 		try {
 			cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(point.getArgs()[0]));
@@ -149,7 +156,7 @@ public class RedisHashAspect {
 		
 		Method method = ((MethodSignature) point.getSignature()).getMethod();
 		RedisHDel cache = method.getAnnotation(RedisHDel.class);
-		String cacheName = cache.cache();
+		String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
 		String hashKey = parseKey(cache.hashKey(), method, point.getArgs());
 		cacher.evictObject(cacheName,hashKey);
 		
@@ -166,7 +173,7 @@ public class RedisHashAspect {
      * @param args
      * @return
      */
-    private String parseKey(String hashKey, Method method, Object[] args) {
+    protected String parseKey(String hashKey, Method method, Object[] args) {
         // 获取被拦截方法参数名列表(使用Spring支持类库)
         LocalVariableTableParameterNameDiscoverer u = new LocalVariableTableParameterNameDiscoverer();
         String[] paraNameArr = u.getParameterNames(method);
