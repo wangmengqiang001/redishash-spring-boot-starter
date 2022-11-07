@@ -1,10 +1,12 @@
 package org.redishash.aop;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.redishash.annotation.RedisHGet;
 import org.redishash.annotation.RedisHPut;
 import org.redishash.aop.RedisHashAspectTest.TElements;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,16 @@ class CacheNameParseTest {
 			
 			return true;
 		}
+		
+		@RedisHPut(cache="abc:xx:xx",hashKey="#xyb",isJson=false)
+		public boolean testPutText(String textToSave,String xyb) {
+			return true;
+		}
+		
+		@RedisHGet(cache="abc:xx:xx",hashKey="#xyb",isJson=false)
+		public String findValue(String xyb) {
+			return "";
+		}
 	}
 	@Test
 	void test() {
@@ -56,5 +68,13 @@ class CacheNameParseTest {
 		innerCache.testMethod( le);
 		
 	}
+	@Test
+	void testText() {
 
+		final String textToSave = "save Text not json object here";
+		innerCache.testPutText(textToSave,"xyb");
+		
+		String value = innerCache.findValue("xyb");
+		assertEquals(textToSave,value);
+	}
 }

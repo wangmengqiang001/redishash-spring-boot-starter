@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface RedisHPut {
 
 	 /**
-    * Cache名
+    * Cache名（支持Spring EL表达式）
     */
    String cache();
 
@@ -24,6 +24,9 @@ public @interface RedisHPut {
     */
    String hashKey();
 
-   
+   /**
+    * 保存值是否以Json 格式保存
+    */
+   boolean isJson() default true;
 
 }

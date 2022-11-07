@@ -82,13 +82,17 @@ public class RedisHashAspect {
                     if (obj != null) {
                     	log.debug("执行方法:{} 完成, 写入缓存cacheName:{},hashKey:{},val:{}",
                     			method.getName(),cacheName,hashKey,obj);
-                    	
-                    	cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(obj));
+                    	if(cache.isJson())
+                    		cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(obj));
+                    	else
+                    		cacher.putObject(cacheName,hashKey,obj);
                     	
          
                     }
                 }else {
-                	obj = JSONUtils.deserializeObject(obj.toString(), rtnType);
+                	if(cache.isJson()) {
+                		obj = JSONUtils.deserializeObject(obj.toString(), rtnType);
+                	}//else return obj directly
                 }
                 return obj;
             }
@@ -140,7 +144,11 @@ public class RedisHashAspect {
 		String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
 		String hashKey = parseKey(cache.hashKey(), method, point.getArgs());
 		try {
-			cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(point.getArgs()[0]));
+			if(cache.isJson()) {
+			    cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(point.getArgs()[0]));
+			}else {
+				cacher.putObject(cacheName,hashKey,point.getArgs()[0]);
+			}
 		} catch (IOException e) {
 			
 			e.printStackTrace();

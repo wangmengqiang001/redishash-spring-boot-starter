@@ -23,7 +23,8 @@ public @interface RedisHMPut {
      * Hash键名（支持Spring EL表达式）
      */
     String hashKey();
-
+    
+  
  
 
 }

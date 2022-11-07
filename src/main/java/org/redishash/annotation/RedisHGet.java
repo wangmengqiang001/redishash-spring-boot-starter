@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface RedisHGet{
 
 	 /**
-     * Cache名
+     * Cache名（支持Spring EL表达式）
      */
     String cache();
 
@@ -28,4 +28,9 @@ public @interface RedisHGet{
      * 如果为写入数据库的操作，该值需置为 false
      */
     boolean read() default true;
+    
+    /**
+     * 保存值是否以Json 格式保存
+     */
+    boolean isJson() default true;
 }
