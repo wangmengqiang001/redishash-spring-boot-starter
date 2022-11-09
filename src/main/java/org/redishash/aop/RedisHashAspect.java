@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
 
 import com.alibaba.nacos.client.utils.JSONUtils;
 
+import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -108,12 +109,13 @@ public class RedisHashAspect {
 			return;
 		Method method = ((MethodSignature) point.getSignature()).getMethod();
 		RedisHMPut cache = method.getAnnotation(RedisHMPut.class);
-		String cacheName = cache.cache();
+		String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
+				
 		
 		resultSet.stream().forEach(r ->{
 					
 			try {
-				String hashKey = parseKeyOfResult(cache.hashKey(),r);
+				String hashKey = parseKeyOfResult(cache.hashKey(),method, point.getArgs(),r);
 				
 				cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(r));
 			} catch (Exception e) {
@@ -127,6 +129,7 @@ public class RedisHashAspect {
 		
 		
 	}
+
 	private String parseCacheName(String cacheName,Method method, Object[] args) {
 		if(cacheName.contains("#")){
 			return this.parseKey(cacheName, method, args);
@@ -143,11 +146,12 @@ public class RedisHashAspect {
 		RedisHPut cache = method.getAnnotation(RedisHPut.class);
 		String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
 		String hashKey = parseKey(cache.hashKey(), method, point.getArgs());
+		Object value = parseValue(cache.value(),method,point.getArgs());
 		try {
 			if(cache.isJson()) {
-			    cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(point.getArgs()[0]));
+			    cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(value));
 			}else {
-				cacher.putObject(cacheName,hashKey,point.getArgs()[0]);
+				cacher.putObject(cacheName,hashKey,value);
 			}
 		} catch (IOException e) {
 			
@@ -195,6 +199,7 @@ public class RedisHashAspect {
         }
         return parser.parseExpression(hashKey).getValue(context, String.class);
     }
+    @Deprecated
     private String parseKeyOfResult(String hashKey,  Object arg) {
     	final String prefix = "#"+RESULT_VAL+".";
     	Assert.isTrue(hashKey.startsWith(prefix), "hashKey开头应是"+prefix);
@@ -209,6 +214,50 @@ public class RedisHashAspect {
          return parser.parseExpression(hashKey).getValue(context, String.class);
     	
     	
+    }
+    protected String parseKeyOfResult(String hashKey, Method method, Object[] args, Object r) {
+    	// 获取被拦截方法参数名列表(使用Spring支持类库)
+    	LocalVariableTableParameterNameDiscoverer u = new LocalVariableTableParameterNameDiscoverer();
+    	String[] paraNameArr = u.getParameterNames(method);
+    	// 使用SPEL进行key的解析
+    	ExpressionParser parser = new SpelExpressionParser();
+    	// SPEL上下文d'd
+    	StandardEvaluationContext context = new StandardEvaluationContext();
+
+
+    	final String prefix = "#"+RESULT_VAL+".";
+    	Assert.isTrue(hashKey.contains(prefix), "hashKey开头应是"+prefix);
+
+
+
+    	// 把方法参数放入SPEL上下文中
+    	for (int i = 0; i < paraNameArr.length; i++) {
+    		context.setVariable(paraNameArr[i], args[i]);
+    	}
+
+    	context.setVariable(RESULT_VAL, r);
+
+    	return parser.parseExpression(hashKey).getValue(context, String.class);
+    }
+    
+    protected Object parseValue(String valExp, Method method, Object[] args) {
+    	log.debug("valExp is :{}",valExp);
+    	//not set valExp, then use first parameter directly
+    	if(StringUtil.isNullOrEmpty(valExp)) 
+    		return args[0];
+    	
+        // 获取被拦截方法参数名列表(使用Spring支持类库)
+        LocalVariableTableParameterNameDiscoverer u = new LocalVariableTableParameterNameDiscoverer();
+        String[] paraNameArr = u.getParameterNames(method);
+        // 使用SPEL进行key的解析
+        ExpressionParser parser = new SpelExpressionParser();
+        // SPEL上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 把方法参数放入SPEL上下文中
+        for (int i = 0; i < paraNameArr.length; i++) {
+            context.setVariable(paraNameArr[i], args[i]);
+        }
+        return parser.parseExpression(valExp).getValue(context);
     }
 
 }

@@ -45,12 +45,12 @@ class CacheNameParseTest {
 			return true;
 		}
 		
-		@RedisHPut(cache="abc:xx:xx",hashKey="#xyb",isJson=false)
+		@RedisHPut(cache="abc:xx:xx",hashKey="'u'+#xyb",isJson=false)
 		public boolean testPutText(String textToSave,String xyb) {
 			return true;
 		}
 		
-		@RedisHGet(cache="abc:xx:xx",hashKey="#xyb",isJson=false)
+		@RedisHGet(cache="abc:xx:xx",hashKey="'u'+#xyb",isJson=false)
 		public String findValue(String xyb) {
 			return "";
 		}
@@ -68,6 +68,7 @@ class CacheNameParseTest {
 		innerCache.testMethod( le);
 		
 	}
+	
 	@Test
 	void testText() {
 

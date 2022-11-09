@@ -28,5 +28,10 @@ public @interface RedisHPut {
     * 保存值是否以Json 格式保存
     */
    boolean isJson() default true;
+   
+   /**
+    * 获取value的Spring EL表达式，为""时取第1个参数
+    */
+   String value() default "";
 
 }

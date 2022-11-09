@@ -59,5 +59,60 @@ class RedisHashAspectTest {
 		}
 		
 	}
+	
+	@Test
+	void testParseValue() {
+		final String valExp="#l[0].u";
+		
+		Object[] args =  new Object[2];
+		args[0] = "Hello";
+		List<TElements> le = Lists.newArrayList();
+		TElements u1 = TElements.builder().a("eml_1").b(1).c("world").u(Lists.newArrayList("a","b","c","d")).build();
+		le.add(u1);
+		 u1 = TElements.builder().a("eml_2").b(2).u(Lists.newArrayList("a","b","c","d")).build();
+		le.add(u1);
+		args[1] = le;
+		
+		Method[] methods = this.getClass().getMethods();
+		for(Method m: methods) {
+			if("testMethod".equals(m.getName())) {
+				RedisHashAspect ra = new RedisHashAspect();
+				Object value = ra.parseValue(valExp, m, args);
+				log.info("valExp:{}, paresed value:{}",valExp,value);
+				assertEquals(u1.u.getClass(),value.getClass());
+				assertEquals(le.get(0).u,value);
+			}
+		}
+		
+	}
+	
+	@Test
+	void testParseMPutKey() {
+		String header = "Hiabc:";
+		final String valExp="'"+header+"'"+"+#m+#l[0].a+#resultVal.u[0]"; //"Hiabc"+":"+
+		//final String valExp=header+"+#m+#l[0].a+#resultVal.u[0]"; //"Hiabc"+":"+
+		log.info("valExp:{}",valExp);
+		
+		Object[] args =  new Object[2];
+		args[0] = "Hello";
+		List<TElements> le = Lists.newArrayList();
+		TElements u1 = TElements.builder().a("eml_1").b(1).c("world").u(Lists.newArrayList("a","b","c","d")).build();
+		le.add(u1);
+		 u1 = TElements.builder().a("eml_2").b(2).u(Lists.newArrayList("a","b","c","d")).build();
+		le.add(u1);
+		args[1] = le;
+		
+		Method[] methods = this.getClass().getMethods();
+		for(Method m: methods) {
+			if("testMethod".equals(m.getName())) {
+				RedisHashAspect ra = new RedisHashAspect();
+				Object value = ra.parseKeyOfResult(valExp, m, args,u1);
+				log.info("valExp:{}, paresed value:{}",valExp,value);
+				//assertEquals(u1.u.getClass(),value.getClass());
+				assertEquals("Hiabc:Helloeml_1a",value);
+			}
+		}
+		
+	}
 
 }
