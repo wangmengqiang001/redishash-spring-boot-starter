@@ -1,18 +1,20 @@
 package org.redishash.aop;
 
-import org.redishash.annotation.EnableRedisHashCache;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@AutoConfiguration
+import lombok.extern.slf4j.Slf4j;
 
+
+@AutoConfiguration
+@Slf4j
 public class RedisConfig {
-		
+	
+	
 	
 	   /**
      * 
@@ -22,7 +24,7 @@ public class RedisConfig {
      */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-       System.out.print("\ninject RedisTemplate!!\n");
+       log.info("\ninject RedisTemplate!!\n");
     	RedisTemplate<String, Object> template = new RedisTemplate<>();
 //        template.setConnectionFactory(jedisConnectionFactory());
         template.setConnectionFactory(connectionFactory);
@@ -41,6 +43,10 @@ public class RedisConfig {
         template.setHashValueSerializer(stringRedisSerializer);
         //jackson2JsonRedisSerializer
         template.afterPropertiesSet();
+        
+       
+        
+        
         return template;
     }
     
@@ -49,7 +55,7 @@ public class RedisConfig {
 	@Bean
 	@ConditionalOnMissingBean(IHashCache.class)
 	public IHashCache redisHashCache() {
-		System.out.println("自动生成IHashCache对象到spring bean工厂");
+		log.info("自动生成IHashCache对象到spring bean工厂");
 		return new RedisHashCache();
 	}
 
@@ -58,7 +64,7 @@ public class RedisConfig {
    // @ConditionPost
     @ConditionalOnMissingBean(RedisHashAspect.class)
     public RedisHashAspect redisHashAspect() {
-    	System.out.println("now, inject aspect here");
+    	log.info("now, inject aspect here");
     	return new RedisHashAspect();
     }
 }

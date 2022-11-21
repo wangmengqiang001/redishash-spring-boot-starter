@@ -26,7 +26,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.alibaba.nacos.client.utils.JSONUtils;
+import com.alibaba.fastjson.JSON;
 
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +84,7 @@ public class RedisHashAspect {
                     	log.debug("执行方法:{} 完成, 写入缓存cacheName:{},hashKey:{},val:{}",
                     			method.getName(),cacheName,hashKey,obj);
                     	if(cache.isJson())
-                    		cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(obj));
+                    		cacher.putObject(cacheName,hashKey,JSON.toJSONString(obj));
                     	else
                     		cacher.putObject(cacheName,hashKey,obj);
                     	
@@ -92,7 +92,8 @@ public class RedisHashAspect {
                     }
                 }else {
                 	if(cache.isJson()) {
-                		obj = JSONUtils.deserializeObject(obj.toString(), rtnType);
+                		//obj = JSONUtils.deserializeObject(obj.toString(), rtnType);
+                		obj = JSON.parseObject(obj.toString(), rtnType);
                 	}//else return obj directly
                 }
                 return obj;
@@ -117,7 +118,8 @@ public class RedisHashAspect {
 			try {
 				String hashKey = parseKeyOfResult(cache.hashKey(),method, point.getArgs(),r);
 				
-				cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(r));
+				cacher.putObject(cacheName,hashKey,JSON.toJSONString(r));
+				//JSONUtils.serializeObject(r));
 			} catch (Exception e) {
 				
 				//e.printStackTrace();
@@ -149,11 +151,12 @@ public class RedisHashAspect {
 		Object value = parseValue(cache.value(),method,point.getArgs());
 		try {
 			if(cache.isJson()) {
-			    cacher.putObject(cacheName,hashKey,JSONUtils.serializeObject(value));
+			    cacher.putObject(cacheName,hashKey,JSON.toJSONString(value));
+			    		//JSONUtils.serializeObject(value));
 			}else {
 				cacher.putObject(cacheName,hashKey,value);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
