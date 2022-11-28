@@ -3,6 +3,9 @@ package org.redishash.aop;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,43 @@ class RedisHashAspectTest {
 	}
 	public void testMethod(String m,List<TElements> l) {
 		
+	}
+	
+	public List<TElements> findElements(){
+		return null;
+	}
+	
+	@Test
+	void testFindElements() {
+		
+		
+		Method[] methods = this.getClass().getMethods();
+		for(Method m: methods) {
+			if("findElements".equals(m.getName())) {
+				Type rtType = m.getReturnType();
+				assertNotNull(rtType);
+				log.debug("type is :{}",rtType);
+				assertEquals(List.class,rtType);
+				
+				Type genTpe = rtType.getClass().getGenericSuperclass();
+				log.debug("generic type is :{}",genTpe);
+				
+				assertNotNull(genTpe);
+				
+				List<String> list = new ArrayList<String>() {};
+				
+		        Type clazz = list.getClass().getGenericSuperclass();
+		        assertNotNull(clazz);
+		        
+		        ParameterizedType pt = (ParameterizedType)clazz;
+		        log.debug("ParameterizedType:{}",pt);
+		        log.debug("acturalType: {}", pt.getActualTypeArguments()[0]);
+		        assertEquals(String.class,pt.getActualTypeArguments()[0]);
+		        //.toString()
+		        
+		        
+			}
+		}
 	}
 	/*
 	 * @Case 测试SPEL Express中包含List, 及参数组合生成key
@@ -114,5 +154,7 @@ class RedisHashAspectTest {
 		}
 		
 	}
+	
+	
 
 }

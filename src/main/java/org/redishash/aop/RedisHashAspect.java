@@ -2,6 +2,8 @@ package org.redishash.aop;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -72,6 +74,8 @@ public class RedisHashAspect {
             if (cache != null && cache.read()) {
             	
             	Class<?> rtnType = method.getReturnType();
+            	log.debug("return type :{}",rtnType);
+            	
             	
                 // 查询操作
                 String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
@@ -93,7 +97,14 @@ public class RedisHashAspect {
                 }else {
                 	if(cache.isJson()) {
                 		//obj = JSONUtils.deserializeObject(obj.toString(), rtnType);
-                		obj = JSON.parseObject(obj.toString(), rtnType);
+                		if(!rtnType.isArray() && !List.class.equals(rtnType))
+                			obj = JSON.parseObject(obj.toString(), rtnType);
+                		else {
+                			Class<?> eleType = cache.clazz();
+                			log.debug("parseArray for type:{}",eleType);
+                			obj = JSON.parseArray(obj.toString(), eleType);
+                		}
+                		
                 	}//else return obj directly
                 }
                 return obj;

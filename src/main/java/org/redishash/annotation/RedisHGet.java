@@ -33,4 +33,6 @@ public @interface RedisHGet{
      * 保存值是否以Json 格式保存
      */
     boolean isJson() default true;
+    
+    Class<?> clazz() default Object.class;
 }
