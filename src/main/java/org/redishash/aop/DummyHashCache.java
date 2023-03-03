@@ -64,5 +64,10 @@ public class DummyHashCache implements IHashCache {
 		
 		
 	}
+	@Override
+	public Object locateList(String cacheName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

@@ -37,4 +37,10 @@ public class RedisHashCache implements IHashCache {
 
 	}
 
+	@Override
+	public Object locateList(String cacheName) {
+		log.debug("locateList: cacheName:{}",cacheName);
+		return redisTemplate.boundHashOps(cacheName).values();
+	}
+
 }

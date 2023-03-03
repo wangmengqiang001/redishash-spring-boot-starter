@@ -1,1 +1,2 @@
 org.redishash.aop.RedisConfig
+org.redishash.fastjson.ConfigSerializer

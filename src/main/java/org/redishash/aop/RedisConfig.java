@@ -22,7 +22,7 @@ public class RedisConfig {
      * Key及Value,HashKey,HashValue对象都采用String 存储，Value,及HashValue的数据都
      * 根据方法的返回类型进行反序列化
      */
-    @Bean
+    /*@Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
        log.info("\ninject RedisTemplate!!\n");
     	RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -48,7 +48,7 @@ public class RedisConfig {
         
         
         return template;
-    }
+    }*/
     
 
 	

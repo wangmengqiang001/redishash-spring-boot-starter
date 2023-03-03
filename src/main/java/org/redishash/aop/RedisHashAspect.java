@@ -1,16 +1,12 @@
 package org.redishash.aop;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,8 +14,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redishash.annotation.RedisHDel;
 import org.redishash.annotation.RedisHGet;
+import org.redishash.annotation.RedisHMGet;
 import org.redishash.annotation.RedisHMPut;
 import org.redishash.annotation.RedisHPut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.expression.ExpressionParser;
@@ -29,6 +27,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
+import com.google.common.collect.Lists;
 
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 public class RedisHashAspect {
 	
+	@Autowired
+	private SerializeConfig serializeConfig;	
 
 	  
 	private static final String RESULT_VAL = "resultVal";
@@ -62,7 +66,71 @@ public class RedisHashAspect {
 	public void cutpointHMPut() {
 		
 	}
-	
+	@Pointcut("@annotation(org.redishash.annotation.RedisHMGet)")
+	public void cutpointHMGet() {
+		
+	}
+	@Around("cutpointHMGet()")
+	public Object cacheList(ProceedingJoinPoint point) {
+        try {
+        	 Method method = ((MethodSignature) point.getSignature()).getMethod();
+             // 获取RedisCache注解
+             RedisHMGet cache = method.getAnnotation( RedisHMGet.class);
+             if (cache != null && cache.read()) {
+             	
+             	Class<?> rtnType = method.getReturnType();
+             	//rtnType.ins
+//             	log.debug("return type :{}",rtnType);
+             	             	
+                 // 查询操作
+                 String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
+                 //String hashKey = parseKey(cache.hashKey(), method, point.getArgs());
+                 Object obj = cacher.locateList(cacheName);
+                 if (obj == null || 
+                		 (obj != null && obj instanceof List && CollectionUtils.isEmpty((List<?>)obj))) {
+                 	log.debug("未找到该对象，执行方法: {}",method.getName());
+                     obj = point.proceed(point.getArgs());
+                     if (obj != null && obj instanceof List &&
+                    		 !CollectionUtils.isEmpty((List<?>)obj)) {//list
+                    	 List<?> resultSet = (List<?>)obj;
+                    	 List<String> values = Lists.newArrayList();
+                    	 //
+                    	 for(Object r:resultSet) {//.stream().forEach(r ->{
+         					
+                 			try {
+                 				
+                 				String hashKey = parseKeyOfResult(cache.hashKey(),method, point.getArgs(),r);
+                 				String jsonValue = JSON.toJSONString(r,
+                 						serializeConfig,SerializerFeature.WriteMapNullValue);
+                 				cacher.putObject(cacheName,hashKey,jsonValue);
+                 				values.add(jsonValue);
+                 				//JSONUtils.serializeObject(r));
+                 			} catch (Exception e) {
+                 				
+                 				//e.printStackTrace();
+                 				log.debug("exception:", e);
+                 				log.error("error happens :{}",e.getMessage());
+                 			}
+                 			
+                 		}
+                    	return values;
+                    	 
+                     }
+                     else
+                    	 return null;
+                 } 
+                 else {
+                	 return obj;              	 
+                 }                 
+                 
+             }
+        	
+        } catch (Throwable ex) {
+            log.error("<====== cutpointHMGet 执行异常: {} ======>", ex);
+        }
+        return null;
+    }
+       
 	
 	@Around("cutpointHGet()")
 	public Object cache(ProceedingJoinPoint point) {
@@ -74,8 +142,7 @@ public class RedisHashAspect {
             if (cache != null && cache.read()) {
             	
             	Class<?> rtnType = method.getReturnType();
-            	log.debug("return type :{}",rtnType);
-            	
+            	log.debug("return type :{}",rtnType);            	
             	
                 // 查询操作
                 String cacheName = parseCacheName(cache.cache(), method, point.getArgs());
@@ -87,8 +154,10 @@ public class RedisHashAspect {
                     if (obj != null) {
                     	log.debug("执行方法:{} 完成, 写入缓存cacheName:{},hashKey:{},val:{}",
                     			method.getName(),cacheName,hashKey,obj);
-                    	if(cache.isJson())
-                    		cacher.putObject(cacheName,hashKey,JSON.toJSONString(obj));
+                    	if(cache.isJson()){
+                    		cacher.putObject(cacheName,hashKey,JSON.toJSONString(obj,
+                    				serializeConfig,SerializerFeature.WriteMapNullValue));
+						}
                     	else
                     		cacher.putObject(cacheName,hashKey,obj);
                     	
@@ -128,8 +197,8 @@ public class RedisHashAspect {
 					
 			try {
 				String hashKey = parseKeyOfResult(cache.hashKey(),method, point.getArgs(),r);
-				
-				cacher.putObject(cacheName,hashKey,JSON.toJSONString(r));
+				cacher.putObject(cacheName,hashKey,JSON.toJSONString(r,
+						serializeConfig,SerializerFeature.WriteMapNullValue));
 				//JSONUtils.serializeObject(r));
 			} catch (Exception e) {
 				
@@ -162,7 +231,8 @@ public class RedisHashAspect {
 		Object value = parseValue(cache.value(),method,point.getArgs());
 		try {
 			if(cache.isJson()) {
-			    cacher.putObject(cacheName,hashKey,JSON.toJSONString(value));
+			    cacher.putObject(cacheName,hashKey,JSON.toJSONString(value,serializeConfig,
+			    		SerializerFeature.WriteMapNullValue));
 			    		//JSONUtils.serializeObject(value));
 			}else {
 				cacher.putObject(cacheName,hashKey,value);
