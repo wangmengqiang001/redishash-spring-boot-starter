@@ -191,4 +191,28 @@
 
 		</plugins>
 	</build>
+	
+	<pluginRepositories>
+       	<pluginRepository>
+            <id>nexus</id>
+            <name>nexus plugin repository</name>
+            <url>http://localrepo:8081/content/groups/public</url>
+            <!--<id>aliyun-plugin</id>-->
+            <!--<url>https://maven.aliyun.com/nexus/content/groups/public/</url>-->
+            <!--<snapshots>-->
+            <!--    <enabled>false</enabled>-->
+            <!--</snapshots>-->
+        </pluginRepository>
+    </pluginRepositories>
+	
+	<distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <url>http://localrepo:8081/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <url>http://localrepo:8081/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
